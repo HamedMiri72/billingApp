@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: billingsoftware
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mydatabase
+    username: hamedmiri72
+    password: miri
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
