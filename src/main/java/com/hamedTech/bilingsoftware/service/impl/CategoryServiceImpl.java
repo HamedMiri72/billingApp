@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -26,5 +30,25 @@ public class CategoryServiceImpl implements CategoryService {
         CategoryResponse categoryResponse = CategoryMapper.convertToCategoryResponse(newCategory);
 
         return categoryResponse;
+    }
+
+    @Override
+    public List<CategoryResponse> getAllCategories() {
+
+        return categoryRepository.findAll()
+                .stream()
+                .map(categoryEntity -> CategoryMapper.convertToCategoryResponse(categoryEntity))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteCategory(String categoryId) {
+
+        CategoryEntity existingCategory = categoryRepository.findCategoryEntitiesByCategoryIdIs(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        categoryRepository.delete(existingCategory);
+
+
     }
 }
