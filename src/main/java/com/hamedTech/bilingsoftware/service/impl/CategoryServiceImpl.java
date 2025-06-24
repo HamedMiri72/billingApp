@@ -6,9 +6,11 @@ import com.hamedTech.bilingsoftware.entity.CategoryEntity;
 import com.hamedTech.bilingsoftware.mapper.CategoryMapper;
 import com.hamedTech.bilingsoftware.repository.CategoryRepository;
 import com.hamedTech.bilingsoftware.service.CategoryService;
+import com.hamedTech.bilingsoftware.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,12 +23,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    private final S3Service s3Service;
 
     @Override
-    public CategoryResponse addCategory(CategoryRequest request) {
+    public CategoryResponse addCategory(CategoryRequest request, MultipartFile file) {
 
-        CategoryEntity newCategory = categoryRepository.save(CategoryMapper.convertToCategoryEntity(request));
+       String imageUrl = s3Service.uploadFile(file);
 
+        CategoryEntity newCategory = CategoryMapper.convertToCategoryEntity(request);
+        newCategory.setImageUrl(imageUrl);
+        categoryRepository.save(newCategory);
         CategoryResponse categoryResponse = CategoryMapper.convertToCategoryResponse(newCategory);
 
         return categoryResponse;
@@ -46,6 +52,8 @@ public class CategoryServiceImpl implements CategoryService {
 
         CategoryEntity existingCategory = categoryRepository.findCategoryEntitiesByCategoryIdIs(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
+
+        s3Service.deleteFile(existingCategory.getImageUrl());
 
         categoryRepository.delete(existingCategory);
 

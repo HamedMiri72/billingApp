@@ -1,8 +1,11 @@
 package com.hamedTech.bilingsoftware.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hamedTech.bilingsoftware.dto.CategoryRequest;
 import com.hamedTech.bilingsoftware.dto.CategoryResponse;
 import com.hamedTech.bilingsoftware.service.CategoryService;
+import com.hamedTech.bilingsoftware.service.S3Service;
 import com.hamedTech.bilingsoftware.service.impl.CategoryServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -10,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,14 +26,28 @@ public class CategoryController {
     private final CategoryService categoryService;
 
 
+
     @PostMapping("/add")
-    public ResponseEntity<CategoryResponse> addCategory(@RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<CategoryResponse> addCategory(@RequestPart("category") String categoryString,
+                                                        @RequestPart ("file") MultipartFile file)
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        CategoryRequest request = null;
 
-        CategoryResponse categoryResponse = categoryService.addCategory(categoryRequest);
+        try{
+            request = objectMapper.readValue(categoryString, CategoryRequest.class);
+            CategoryResponse categoryResponse = categoryService.addCategory(request, file);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(categoryResponse);
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(categoryResponse);
+
+        }catch(JsonProcessingException exception){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Exception occured while passing json"+ exception);
+
+        }
+
+
     }
 
     @GetMapping
@@ -42,13 +61,17 @@ public class CategoryController {
 
     }
 
-    @DeleteMapping("delete")
-    public ResponseEntity<Void> deleteCategory(@RequestParam String categoryId){
+    @DeleteMapping("delete/{categoryId}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable String categoryId) {
 
-        categoryService.deleteCategory(categoryId);
-
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
-
+        try {
+            categoryService.deleteCategory(categoryId);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
 
     }
+
+
 }
