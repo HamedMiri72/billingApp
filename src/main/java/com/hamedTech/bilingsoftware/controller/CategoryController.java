@@ -20,7 +20,6 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
@@ -28,7 +27,7 @@ public class CategoryController {
 
 
 
-    @PostMapping("/add")
+    @PostMapping("/admin/categories/add")
     public ResponseEntity<CategoryResponse> addCategory(@RequestPart("category") String categoryString,
                                                         @RequestPart ("file") MultipartFile file)
     {
@@ -51,7 +50,7 @@ public class CategoryController {
 
     }
 
-    @GetMapping
+    @GetMapping("categories")
     public ResponseEntity<List<CategoryResponse>> getAllCategories(){
 
         List<CategoryResponse> categories = categoryService.getAllCategories();
@@ -62,7 +61,7 @@ public class CategoryController {
 
     }
 
-    @DeleteMapping("delete/{categoryId}")
+    @DeleteMapping("/admin/delete/{categoryId}")
     public ResponseEntity<Void> deleteCategory(@PathVariable String categoryId) {
 
         try {
