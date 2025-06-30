@@ -20,4 +20,7 @@ aws:
   s3:
     bucket: billing-app-s3-images
 
+jwt:
+  secret=${JWT_SECRET_KEY}
+
 
