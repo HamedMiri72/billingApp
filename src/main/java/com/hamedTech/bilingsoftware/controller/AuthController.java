@@ -3,6 +3,7 @@ package com.hamedTech.bilingsoftware.controller;
 import com.hamedTech.bilingsoftware.dto.AuthRequest;
 import com.hamedTech.bilingsoftware.dto.AuthResponse;
 import com.hamedTech.bilingsoftware.service.impl.AppUserDaetailsService;
+import com.hamedTech.bilingsoftware.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +28,19 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final AppUserDaetailsService appUserDaetailsService;
+    private final JwtUtils jwtUtils;
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request){
 
         authenticate(request.getEmail(), request.getPassword());
         final UserDetails userDetails = appUserDaetailsService.loadUserByUsername(request.getEmail());
-
-        return null;
+        final String token = jwtUtils.generateToken(userDetails);
+        return ResponseEntity.ok(new AuthResponse(
+                request.getEmail(),
+                "USER",
+                token
+        ));
+         
     }
 
     private void authenticate(String email, String password) {
