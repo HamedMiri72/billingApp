@@ -18,24 +18,18 @@ import java.util.Collections;
 public class AppUserDaetailsService implements UserDetailsService {
 
 
-    private final UserRepository userRepository;
+   private UserRepository userRepository;
 
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UserEntity existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found exception" + email));
 
-    UserEntity existingUser = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("UserName is not available" + email));
-
-    return new User(
-            existingUser.getEmail(),
-            existingUser.getPassword(),
-            Collections.singleton(new SimpleGrantedAuthority(
-                    existingUser.getRole()
-            ))
-    );
-
+        return new User(
+                existingUser.getEmail(),
+                existingUser.getPassword(),
+                Collections.singleton(new SimpleGrantedAuthority(existingUser.getRole()))
+        );
     }
-
-
 }
