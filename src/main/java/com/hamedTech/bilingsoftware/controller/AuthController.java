@@ -29,18 +29,18 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final AppUserDaetailsService appUserDaetailsService;
     private final JwtUtils jwtUtils;
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request){
 
         authenticate(request.getEmail(), request.getPassword());
-        final UserDetails userDetails = appUserDaetailsService.loadUserByUsername(request.getEmail());
+        final UserDetails userDetails = appUserDaetailsService.loadUserByUsername(request.getPassword());
         final String token = jwtUtils.generateToken(userDetails);
         return ResponseEntity.ok(new AuthResponse(
                 request.getEmail(),
-                "USER",
                 token
+                ,"USER"
         ));
-         
     }
 
     private void authenticate(String email, String password) {
@@ -49,13 +49,12 @@ public class AuthController {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
         }catch(DisabledException e){
-
-            throw new DisabledException("User is disabled");
-
-        }catch(BadCredentialsException e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid credentials");
+            throw  new DisabledException("user is disabled");
+        }catch (BadCredentialsException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "invalid credentials");
         }
     }
+
     @PostMapping("/encode")
     public String encodePassword(@RequestBody Map<String, String> request){
 
