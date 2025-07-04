@@ -7,10 +7,12 @@ import com.hamedTech.bilingsoftware.mapper.UserMapper;
 import com.hamedTech.bilingsoftware.repository.UserRepository;
 import com.hamedTech.bilingsoftware.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,16 +35,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String getUserRole(String email) {
-        return "";
+        UserEntity userEntity = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found by provided email: " + email));
+        String role = userEntity.getRole();
+
+        return role;
     }
 
     @Override
     public List<UserResponse> readAllUsers() {
-        return List.of();
+
+        List<UserEntity> userEntityList = userRepository.findAll();
+
+        List<UserResponse> responses = userEntityList
+                .stream()
+                .map(userEntity -> UserMapper.convertToUserResponse(userEntity))
+                .collect(Collectors.toList());
+
+        return responses;
     }
 
     @Override
-    public void deleteUser(String UserId) {
+    public void deleteUser(String userId) {
+
+        UserEntity userEntity = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found by the email: " + userId));
+
+        userRepository.delete(userEntity);
+        
 
     }
 }

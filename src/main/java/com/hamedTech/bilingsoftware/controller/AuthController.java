@@ -2,6 +2,7 @@ package com.hamedTech.bilingsoftware.controller;
 
 import com.hamedTech.bilingsoftware.dto.AuthRequest;
 import com.hamedTech.bilingsoftware.dto.AuthResponse;
+import com.hamedTech.bilingsoftware.service.UserService;
 import com.hamedTech.bilingsoftware.service.impl.AppUserDaetailsService;
 import com.hamedTech.bilingsoftware.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final AppUserDaetailsService appUserDaetailsService;
     private final JwtUtils jwtUtils;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request){
@@ -36,10 +38,11 @@ public class AuthController {
         authenticate(request.getEmail(), request.getPassword());
         final UserDetails userDetails = appUserDaetailsService.loadUserByUsername(request.getPassword());
         final String token = jwtUtils.generateToken(userDetails);
+        final String role = userService.getUserRole(request.getEmail());
         return ResponseEntity.ok(new AuthResponse(
                 request.getEmail(),
-                token
-                ,"USER"
+                token,
+                role
         ));
     }
 
