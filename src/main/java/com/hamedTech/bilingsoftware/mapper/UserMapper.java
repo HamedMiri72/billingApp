@@ -3,9 +3,11 @@ package com.hamedTech.bilingsoftware.mapper;
 import com.hamedTech.bilingsoftware.dto.UserRequest;
 import com.hamedTech.bilingsoftware.dto.UserResponse;
 import com.hamedTech.bilingsoftware.entity.UserEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Component
 public class UserMapper {
     public static UserEntity convertToEntity(UserRequest request) {
 

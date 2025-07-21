@@ -13,7 +13,7 @@ spring:
 server:
   servlet:
     context-path: /api/v1.0
-  port: 9000
+  port: 9001
 
 aws:
   region: eu-north-1
@@ -21,6 +21,8 @@ aws:
     bucket: billing-app-s3-images
 
 jwt:
-  secret=${JWT_SECRET_KEY}
+  secret: helloWorld
+
+
 
 
